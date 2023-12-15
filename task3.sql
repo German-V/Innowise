@@ -28,16 +28,6 @@ where exists (select film_id from inventory)
 
 --5
 
-
-/*select fa.actor_id, a.first_name, a.last_name, count(fa.actor_id) as count_films,
-dense_rank() over(order by count(fa.actor_id) desc) from film_actor fa 
-join (
-select fid from film_list
-where category = 'Children') fl on fa.film_id = fl.fid
-join actor a on a.actor_id=fa.actor_id
-group by fa.actor_id, a.first_name, a.last_name*/ 
-
-
 select first_name, last_name, total from(
 select dense_rank() over(order by count(a.actor_id) desc) dn, a.first_name, a.last_name, count(a.actor_id) as total  from actor a 
 join film_actor fa on a.actor_id = fa.actor_id 
@@ -56,85 +46,7 @@ group by city
 order by inactive desc
 
 
-
-/*select city, count(c.customer_id) as total, count(c.active) over(partition by city) from customer c 
-join (select c2.city, a.address_id  from city c2, address a 
-group by c2.city_id,a.address_id
-having c2.city_id = a.city_id) с3 on c.address_id = с3.address_id
-group by city,c.active*/
-
-
 --7
-/*with result_1 as(
-select city, f.rental_duration  from city c 
-join address a on a.city_id = c.city_id
-join customer c1 on c1.address_id=a.address_id
-join store s on s.store_id = c1.store_id
-join inventory i on i.store_id = s.store_id
-join film f on f.film_id = i.film_id
-join film_category fc on f.film_id = fc.film_id
-join category c2 on c2.category_id = fc.category_id and name like 'A%'),
-result_2 as(
-select city, f.rental_duration from city c
-join address a on a.city_id = c.city_id
-join customer c1 on c1.address_id=a.address_id
-join store s on s.store_id = c1.store_id
-join inventory i on i.store_id = s.store_id
-join film f on f.film_id = i.film_id  
-join film_category fc on f.film_id = fc.film_id
-join category c2 on c2.category_id = fc.category_id
-where city like '%-%')
-select city, sum(rental_duration) as rent from result_1
-group by city
-order by rent desc*/
-
-/*select name,total as rent from(
-select name, sum(f.rental_duration) total  from city c 
-join address a on a.city_id = c.city_id
-join customer c1 on c1.address_id=a.address_id
-join store s on s.store_id = c1.store_id
-join inventory i on i.store_id = s.store_id
-join film f on f.film_id = i.film_id
-join film_category fc on f.film_id = fc.film_id
-join category c2 on c2.category_id = fc.category_id and name like 'A%'
-group by name 
-union
-select name, sum(f.rental_duration) total from city c
-join address a on a.city_id = c.city_id
-join customer c1 on c1.address_id=a.address_id
-join store s on s.store_id = c1.store_id
-join inventory i on i.store_id = s.store_id
-join film f on f.film_id = i.film_id  
-join film_category fc on f.film_id = fc.film_id
-join category c2 on c2.category_id = fc.category_id
-where city like '%-%'
-group by name)
-order by rent*/
-
-/*select name,total as rent from(
-select name, sum(r.return_date-r.rental_date) total  from city c 
-join address a on a.city_id = c.city_id
-join customer c1 on c1.address_id=a.address_id
-join store s on s.store_id = c1.store_id
-join inventory i on i.store_id = s.store_id
-join film_category fc on i.film_id = fc.film_id
-join category c2 on c2.category_id = fc.category_id and name like 'A%'
-join rental r on r.inventory_id = i.inventory_id
-group by name 
-union
-select name, sum(r.return_date-r.rental_date) total from city c
-join address a on a.city_id = c.city_id
-join customer c1 on c1.address_id=a.address_id
-join store s on s.store_id = c1.store_id
-join inventory i on i.store_id = s.store_id
-join film_category fc on i.film_id = fc.film_id
-join rental r on r.inventory_id = i.inventory_id
-join category c2 on c2.category_id = fc.category_id
-where city like '%-%'
-group by name)
-order by rent
-
-
 
 select count(city)  from city c 
 join address a on a.city_id = c.city_id
