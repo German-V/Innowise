@@ -1,4 +1,8 @@
 venv/
 py_log.log
+<<<<<<< HEAD
+=======
+results/
+>>>>>>> f0f6fc1cf7475ad47ccafa995b5879d9ffb9432f
 __pycache__/
 *.pyc
