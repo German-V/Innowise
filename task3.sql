@@ -48,11 +48,7 @@ order by inactive desc
 
 --7
 
-select count(city)  from city c 
-join address a on a.city_id = c.city_id
-join customer c1 on c1.address_id=a.address_id
-join store s on s.store_id = c1.store_id grouping i.store_id
-join inventory i on i.store_id = s.store_id */
+
 select name, rent from((
 select name, sum(r.return_date-r.rental_date) rent from category c 
 join film_category fc on fc.category_id  = c.category_id 
