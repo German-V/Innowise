@@ -50,15 +50,9 @@ class Queries:
         "ORDER BY avg_age " +
         "LIMIT 5")
         file.write(out, self.logg, self.cur.fetchall(), ['name', 'average_age'])
-<<<<<<< HEAD
-        # (MAX(date_part('year', age(current_date, birthday)))-MIN(date_part('year', age(current_date, birthday)))) diff
-    def q3(self, file: files.reader.FileWorker, out: str):
-        self.cur.execute("SELECT r.name, (MAX(s.birthday)-MIN(s.birthday)) diff  FROM rooms r " +
-=======
-        
+
     def q3(self, file: files.reader.FileWorker, out: str):
         self.cur.execute("SELECT r.name, (MAX(date_part('year', age(current_date, birthday)))-MIN(date_part('year', age(current_date, birthday)))) diff FROM rooms r " +
->>>>>>> f0f6fc1cf7475ad47ccafa995b5879d9ffb9432f
         "JOIN students s ON r.id = s.room " +
         "GROUP BY r.id " + 
         "ORDER BY diff DESC " +
