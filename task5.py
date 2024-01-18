@@ -1,6 +1,13 @@
 # %%
+from configparser import ConfigParser
 import pyspark
 from pyspark.sql import SparkSession
+from pyspark.sql.window import Window
+from pyspark.sql.window import Window
+from pyspark.sql.functions import dense_rank, rank, row_number
+from pyspark.sql.functions import desc
+from pyspark.sql.functions import col
+
 spark = SparkSession.builder.master('local[*]').appName("task5").config('spark.jars', 'postgresql-42.7.1.jar').getOrCreate()
 
 def get_table(properties: dict, url: str, table_name: str, spark: SparkSession):
@@ -10,12 +17,18 @@ def get_table(properties: dict, url: str, table_name: str, spark: SparkSession):
         table=table_name
     )
 
+parser = ConfigParser()
+parser.read('database.ini')
 
-properties = {
-        "user": 'postgres',
-        "password": '12',
-        "driver": "org.postgresql.Driver"
-    }
+db = {}
+if parser.has_section('postgresql'):
+    params = parser.items('postgresql')
+    for param in params:
+        db[param[0]] = param[1]
+else:
+    raise Exception('Section {0} not found in the {1} file'.format(section, filename))
+
+properties = db
 connection_str = "jdbc:postgresql://localhost:5432/pagila"
 df_film_list = get_table(properties, connection_str, 'film_list', spark)
 df_film = get_table(properties, connection_str, 'film', spark)
@@ -47,7 +60,10 @@ df_rental.createOrReplaceTempView("rental")
 df_address.createOrReplaceTempView("address")
 
 # %%
-spark.sql("select category, count(*) as film_count from film_list fl group by category").collect()
+spark.sql("select category, count(*) as film_count from film_list fl \
+group by category \
+order by film_count desc \
+").collect()
 
 
 # %%
@@ -63,15 +79,14 @@ spark.sql("select actor_id, (\
 
 
 # %%
-spark.sql("select distinct fl.category, sum(price) over(partition by category) sum from film_list fl \
-order by sum desc \
-limit 1").show()
+
+spark.sql("select distinct category, sum(price) over(partition by category) sum_price from film_list fl \
+order by sum_price desc").withColumn("num", dense_rank().over(Window.orderBy(desc("sum_price")))).filter("num=1").show()
 
 
 # %%
 spark.sql("select distinct title from film f \
-join inventory i on f.film_id = i.film_id \
-where exists (select film_id from inventory)").show()
+where not exists (select film_id from inventory i where f.film_id = i.film_id) ").show()
 
 # %%
 spark.sql("select first_name, last_name, total from( \
