@@ -27,6 +27,9 @@ class Queries:
         self.q2(file,out)
         self.q3(file,out)
         self.q4(file,out)
+        self.q5(file,out)
+        self.q6(file,out)
+        self.q7(file,out)
             
     def insert_data(self, table_name: str, insert_data: str):
         try:
@@ -69,3 +72,46 @@ class Queries:
         "GROUP BY room " +
         "ORDER BY room")
         file.write(out, self.logg, self.cur.fetchall(), ['room'])
+        
+    def q5(self, file: files.reader.FileWorker, out: str):
+        self.cur.execute("SELECT count(*) AS count_rooms FROM rooms ")
+        file.write(out, self.logg, self.cur.fetchall(), ['count_rooms'])
+        
+    def q6(self, file: files.reader.FileWorker, out: str):
+        self.cur.execute("WITH count_students AS(" +
+        "SELECT room, count(*) AS room_num , RANK() OVER (ORDER BY COUNT(*) DESC) AS rank_num FROM students " +
+        "GROUP BY room) " +
+        "SELECT room, max(room_num)  FROM count_students " +
+        "WHERE rank_num = 1 " +
+        "GROUP BY room ")
+        file.write(out, self.logg, self.cur.fetchall(), ['room', 'max'])
+        
+    def q7(self, file: files.reader.FileWorker, out: str):
+        self.cur.execute("SELECT id AS room FROM rooms " +
+         "EXCEPT "+
+         "SELECT room FROM students "+
+         "GROUP BY room")
+        file.write(out, self.logg, self.cur.fetchall(), ['room'])
+        
+        
+        
+        
+        
+        
+    # def q6(self, file: files.reader.FileWorker, out: str):
+    #     self.cur.execute("WITH count_students AS(" +
+    #     "SELECT count(*) AS room_num FROM students " +
+    #     "GROUP BY room) " +
+    #     "SELECT min(room_num) AS min_room  FROM count_students " +
+    #     "UNION "+
+    #     "SELECT max(room_num) AS min_room  FROM count_students ")
+    #     file.write(out, self.logg, self.cur.fetchall(), ['num','room', 'min'])
+        
+    # def q6(self, file: files.reader.FileWorker, out: str):
+    #     self.cur.execute("WITH count_students AS(" +
+    #     "SELECT room, count(*) AS room_num FROM students " +
+    #     "GROUP BY room) " +
+    #     "SELECT rank() OVER (ORDER BY room_num ASC) AS rank_asc, room, min(room_num) AS min_room  FROM count_students " +
+    #     "GROUP BY room, room_num "+
+    #     "WHERE rank_asc=1")
+    #     file.write(out, self.logg, self.cur.fetchall(), ['num','room', 'min'])
