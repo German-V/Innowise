@@ -1,1 +1,0 @@
-python3 main.py -ro sources/rooms.json -st sources/students.json -out json
